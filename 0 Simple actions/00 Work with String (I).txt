@@ -1,0 +1,135 @@
+Вам дана строка из n строк. Каждая подстрока длиной n символов.
+
+Пример: "abcd\nefgh\nijkl\nmnop"
+
+Требуется написать следующие методы:
+1. Отражение по горизонтали:
+abcd --> dcba
+efgh     hgfe
+ijkl     lkji
+mnop     ponm
+
+2. Отражение по вертикали: 
+abcd --> mnop 
+efgh     ijkl 
+ijkl     efgh 
+mnop     abcd 
+
+3. Отражение по вертикали с последующим отражением по горизонтали:
+abcd --> abcd....
+efgh     efgh....
+ijkl     ijkl....   
+mnop     mnop....
+	 ....ponm
+	 ....lkji
+	 ....hgfe
+	 ....dcba
+
+4. Собрать строку из поиндексовых символов:
+abcd --> abcd|aeim
+efgh     efgh|bfjn
+ijkl     ijkl|cgko 
+mnop     mnop|dhlp
+
+5. Выводить данные в консоль при помощи функции высшего порядка
+
+Примеры строк:
+
+String tmp1 = "abcd\nefgh\nijkl\nmnop";
+
+String tmp2 = "wdrYpmyX\nPwiUrTGk\nXCpGqxgb\nzwrFEXaq\nrEcvAEDG\nDmVcDnoL
+                 \nHxWEidYU\niIITARWi";
+
+String tmp3 = "JXmKTBYA\nctZzINFk\nUliLwgse\nPlxiTsKA\nxpHdKxIH\neVQBmXHl
+                 \nROcMhgL\nOehZBPNI";
+
+String tmp4 = "zjipaDVr\nIUkQNmUn\nLbHdsNkx\nCawaGccJ\nMzfnsgym\nVVUMDISj
+                 \nJAucOmsu\nZZPqXKtp\nzjipaDVr\nIUkQNmUn\nLbHdsNkx\nCawaGccJ
+                 \nMzfnsgym\nVVUMDISj\nJAucOmsu\nZZPqXKtp";
+
+
+Решение:
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+
+public class Solution {
+
+    //Отражение строки по горизонтали (
+    public static String method1(String someString) {
+        return Arrays.stream(someString.split("\n"))
+                .map(s -> new StringBuilder(s).reverse().toString())
+                .collect(Collectors.joining("\n"));
+    }
+
+    //Отражение строки по вертикали
+    public static String method2(String someString) {
+        List<String> preRes = Arrays.asList(someString.split("\n"));
+        Collections.reverse(preRes);
+        return String.join("\n", preRes);
+    }
+
+    //Отражение по вертикали + по горизонтали
+    public static String method3(String someString) {
+        String res = "";
+        List<String> preRes = Arrays.asList(someString.split("\n"));
+
+        String part = preRes.get(0).replaceAll("[^.]",".");
+
+        res = String.join(part + "\n", preRes) + part + "\n";
+
+        Collections.reverse(preRes);
+        res += preRes.stream()
+                .map(s -> part + new StringBuilder(s).reverse().toString())
+                .collect(Collectors.joining("\n"));
+        return res;
+    }
+
+    //Сбор строки из поиндексовых символов
+    public static String method4(String someString) {
+        StringBuilder res = new StringBuilder();
+        List<String> tmp1 = Arrays.asList(someString.split("\n"));
+        List<String> tmp2 = Arrays.asList(auxiliary(someString).split("\n"));
+
+        for (int i = 0; i < tmp1.size(); i++) {
+            res.append(tmp1.get(i) + "|" + tmp2.get(i) + "\n");
+        }
+
+        return res.deleteCharAt(res.length() - 1).toString();
+    }
+
+    public static String auxiliary(String someString) {
+        List<String> tmp = Arrays.asList(someString.split("\n"));
+        int count = tmp.get(0).length();
+        StringBuilder res = new StringBuilder();
+
+        for (int i = 0; i < count; i++) {
+            for (String s : tmp) {
+                res.append(s.charAt(i));
+            }
+
+            res.append("\n");
+        }
+
+        return res.deleteCharAt(res.length() - 1).toString();
+    }
+
+    //Функция высшего порядка
+    public static String highOrder(UnaryOperator<String> fi, String s) {
+        return fi.apply(s);
+    }
+
+    public static void main(String[] args) {
+        String tmp1 = "abcd\nefgh\nijkl\nmnop";
+        String tmp2 = "wuUyPC\neNHWxw\nehifmi\ntBTlFI\nvWNpdv\nIFkGjZ";
+        String tmp3 = "wdrYpmyX\nPwiUrTGk\nXCpGqxgb\nzwrFEXaq\nrEcvAEDG\nDmVcDnoL\nHxWEidYU\niIITARWi";
+
+        //System.out.println(highOrder(Solution::method1, tmp1));
+        //System.out.println(highOrder(Solution::method2, tmp1));
+        //System.out.println(highOrder(Solution::method3, tmp2));
+        //System.out.println(highOrder(Solution::method4, tmp3));
+        
+    }
+}
