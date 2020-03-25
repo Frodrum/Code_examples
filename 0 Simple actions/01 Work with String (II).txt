@@ -1,0 +1,77 @@
+К примеру, Вам даны три строки:
+
+String source = "abrakadabra";
+String part1 = "abrada";
+String part2 = "kabra".
+
+Ваша задача - написать метод, который будет определять (ture / false), можно ли из строк part1 и part2 получить строку source.
+Важным условием является то, что при сложении part1 и part2 - символы должны идти последовательно.
+Например, вышеприведённый пример вернёт true, т.к.:
+
+         0 1 2 3 4 5 6 7 8 9 10
+source   a b r a k a d a b r a
+part1    a b r a     d a
+part2            k a     b r a
+
+Но если мы измением порядок символов в строке part2:
+Было: "kaBRa"
+Стало: "kaRBa"
+, то метод должен вернуть false, т.к.:
+
+         0 1 2 3 4 5 6 7 8 9 10
+source   a b r a k a d a b r a
+part1    a b r a     d a
+part2            k a     R B a
+
+Решение:
+public class Solution {
+
+    public static boolean merger(String source, String part1, String part2) {
+        if (source.isEmpty()) return false;
+
+        char[] ch = source.toCharArray();
+        char[] p1 = part1.toCharArray();
+        char[] p2 = part2.toCharArray();
+
+        int l = ch.length, l1 = p1.length, l2 = p2.length;
+        int count1 = 0, count2 = 0;
+
+        if (l == (l1 + l2)) {
+
+            for (int i = 0; i < l; i++){
+                if (count1 < l1 && ch[i] == p1[count1]) count1++;
+                if (count2 < l2 && ch[i] == p2[count2]) count2++;
+            }
+
+            if(l == count1 + count2){
+                return true;
+            } else return false;
+
+        } else return false;
+
+    }
+
+
+    public static void main(String[] args) {
+//        String source = "abrakadabra";
+
+//        Example #1
+//        String part1 = "abrak";
+//        String part2 = "adabra";
+
+//        Example #2
+//        String part1 = "arkdba";
+//        String part2 = "baaar";
+
+//        Example #3
+//        String part1 = "abr";
+//        String part2 = "kadabra";
+
+//        Example #4
+//        String part1 = "abar";
+//        String part2 = "dakabr";
+
+        System.out.println(merger(source, part1, part2));
+
+    }
+}
