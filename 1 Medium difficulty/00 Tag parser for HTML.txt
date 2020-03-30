@@ -1,0 +1,117 @@
+Вам дан HTML-документ с данными.
+На вход в программу подаётся один тег (span / strong / div и т.д.) без "< | >".
+
+Требуется вывести в консоль все данные, которые находятся в теге:
+- каждая запись с новой строки;
+- порядок вывода соответствует порядку данных в файле.
+
+Примечания:
+- для каждого открывающего тега есть закрывающий;
+- теги могут быть вложенными;
+- решение должно быть реализовано без библиотеки Jsoup.
+
+Пример данных из файла (Если на вход подаётся "span"):
+<br><span>Info <span>about</span> Diana: <span xml:lang="en" lang="en"><b><span></br>
+	Princess <spa>Di</spa>ana</spanbaraban> is a 
+</span></b></span><span>Wo<span>nd</span>er</span><span> Woman</span></span>
+
+Пример результата (Нумерация проставлена для наглядности. Выводить её не надо):
+1. <span>Info <span>about</span> Diana: <span xml:lang="en" lang="en"><b><span></br>	Princess <spa>Di</spa>ana</spanbaraban> is a </span></b></span><span>Wo<span>nd</span>er</span><span> Woman</span></span>
+2. <span>about</span>
+3. <span xml:lang="en" lang="en"><b><span></br>	Princess 4. <spa>Di</spa>ana</spanbaraban> is a </span></b></span>
+5. <span></br>	Princess <spa>Di</spa>ana</spanbaraban> is a </span>
+6. <span>Wo<span>nd</span>er</span>
+7. <span>nd</span>
+8. <span> Woman</span>
+
+Решение:
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Solution {
+    //Метод для записи данных в лист
+    public static void WriteInList(Pattern pat, StringBuilder str, List<Integer> list) {
+        int tmp;
+        int start = 0;
+        Matcher matcher = pat.matcher(str);
+
+        while(matcher.find()) {
+            String forWrite = matcher.group();
+            tmp = str.indexOf(forWrite, start);
+            list.add(tmp);
+
+            start = tmp + 1;
+        }
+    }
+
+
+    public static void main(String[] args) {
+        try (BufferedReader BF1 = new BufferedReader(new InputStreamReader(System.in));
+             BufferedReader reader = new BufferedReader(new FileReader(BF1.readLine()))) {
+
+
+            //Собираем строки из документа в одну
+            StringBuilder preRes = new StringBuilder();
+
+            while(reader.ready()) {
+                preRes.append(reader.readLine());
+            }
+
+
+            //Собираем позиции всех открывающих тегов в List
+            List<Integer> startIndex = new ArrayList<>();
+            Pattern openTag = Pattern.compile("<" + args[0] + "[^<]*?>");
+            WriteInList(openTag, preRes, startIndex);
+            //System.out.println(startIndex);
+
+
+            //Собираем позиции всех закрывающих тегов в List
+            List<Integer> endIndex = new ArrayList<>();
+            Pattern closeTag = Pattern.compile("</" + args[0] + ">");
+            WriteInList(closeTag, preRes, endIndex);
+            //System.out.println(endIndex);
+
+
+            //Выводим результат в консоль
+            //У нас есть переменная "pair". Мы бежим по строке (Посимвольно) и, если индекс символа есть
+            //в коллекции со стартовыми значениями - прибавляем к pare 1, если в коллекции с
+            //конечным значениям - вычитаем 1.
+            //Когда pair становится равна 0, значит мы нашли конечный индекс для конца тега, который
+            //надо вывести.
+            int pair = 0;
+            int index = 0;
+
+            for (int i = startIndex.get(index); i < preRes.length(); i++) {
+
+                if (startIndex.contains(i)) {
+                    ++pair;
+                } else if (endIndex.contains(i)) {
+                    --pair;
+                }
+
+                if (pair == 0) {
+                    //К концу прибавляем недостающие символы "<", "/", ">".
+                    System.out.println(preRes.substring(startIndex.get(index), i + args[0].length() + 3));
+                    ++index;
+
+                    if (index == startIndex.size()) {
+                        break;
+                    } else {
+                        i = startIndex.get(index) - 1;
+                    }
+                }
+
+            }
+
+        } catch (IOException e) {
+            System.out.println("Something wrong");
+            e.printStackTrace();
+        }
+    }
+}
